@@ -17,7 +17,7 @@ export const CreateProjectsView = () => {
     description: ""
   }
   const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: {}
+    defaultValues: initialValues
   })
 
   /*const mutation = useMutation({
