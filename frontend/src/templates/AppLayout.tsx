@@ -3,6 +3,7 @@ import Logo from "../components/Logo"
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 import NavMenu from "../components/NavMenu"
+import { Link, useNavigate } from "react-router-dom";
 
  function AppLayout() {
    return (
@@ -10,7 +11,10 @@ import NavMenu from "../components/NavMenu"
         <header className="bg-gray-800 py-5">
             <div className="max-w-2xl mx-auto flex flex-col lg:flex-row justify-between items-center">
                 <div className="w-64">
-                    <Logo/>
+                    <Link to={`/`}>
+                        <Logo/>
+                    </Link>
+                    
                 </div>
                 <NavMenu/>
             </div>
