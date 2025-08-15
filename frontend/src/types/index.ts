@@ -19,4 +19,20 @@ export const DashboarProjectShecma=z.array(
 )
 
 export type Project=z.infer<typeof projectSchema>
+/* Task */
+
+export const TaskStatus=z.enum(['pending','onHold','inProgress','underReview','completed'])
+
+export const TaskSchema=z.object({
+    _id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    project: z.string(),
+    status: TaskStatus
+})
+
+export type Task= z.infer<typeof TaskSchema>
+
+export type TaskFormData=Pick<Task,'name' | 'description'>
+
 export type ProjectFormData=Pick<Project,'clientName' | 'projectName' | 'description'>
