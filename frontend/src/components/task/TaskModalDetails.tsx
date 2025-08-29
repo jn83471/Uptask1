@@ -1,0 +1,107 @@
+import React, { Fragment, type HtmlHTMLAttributes } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ChangeStatus, GetTaskById } from '../../api/TaskApi';
+import { toast } from 'react-toastify';
+import { formatDate } from '../../utils/formatDate';
+import { statusTransition } from '../../locates/es';
+import type { TaskStatusInterfer } from '../../types';
+
+
+export default function TaskModalDetails() {
+    const navigate = useNavigate()
+
+    const params = useParams();
+    const { projectId } = params
+
+    const location = useLocation()
+    const queryParams = new URLSearchParams(location.search)
+    const taskId = queryParams.get("viewtask")
+
+    const queryClient=useQueryClient()
+
+    const show = taskId ? true : false
+
+    const { data, isError, error } = useQuery({
+        queryKey: ['task', taskId],
+        queryFn: () => GetTaskById({ projectId, taskId }),
+        enabled: !!taskId,
+        retry: 1
+    })
+    const {mutate}=useMutation({
+        mutationFn:ChangeStatus,
+        onError:(error)=>{
+            toast.error(error.message)
+        },
+        onSuccess:(data)=>{
+            queryClient.invalidateQueries({queryKey:['editprojects', projectId]})
+            toast.success(data)
+            navigate(location.pathname, { replace: true })
+        }
+    })
+    const handleChange=(e:React.ChangeEvent<HTMLSelectElement>)=>{
+        console.log(e.target.value)
+        const status=e.target.value as TaskStatusInterfer
+        const data={projectId,taskId,status}
+        mutate(data)
+    }
+    console.log(isError)
+    if (isError) {
+        toast.error(error.message, { toastId: 'error' })
+        return <Navigate to={`/projects/${projectId}`} />
+    }
+    if (data) return (
+        <>
+            <Transition appear show={show} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={() => { navigate(location.pathname, { replace: true }) }}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-black/60" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                            >
+                                <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all p-16">
+                                    <p className='text-sm text-slate-400'>Agregada el: {formatDate(data.createdAt)}</p>
+                                    <p className='text-sm text-slate-400'>Última actualización: {formatDate(data.updatedAt)}</p>
+                                    <Dialog.Title
+                                        as="h3"
+                                        className="font-black text-4xl text-slate-600 my-5"
+                                    >{data?.name}
+                                    </Dialog.Title>
+                                    <p className='text-lg text-slate-500 mb-2'>{data.description}</p>
+                                    <div className='my-5 space-y-3'>
+                                        <select className='w-full p-3 bg-white border border-gray-300'
+                                        onChange={handleChange}
+                                        defaultValue={data.status}>
+                                            {Object.entries(statusTransition).map(([x,y])=>{
+                                                return (<option key={x} value={x}>{y}</option>)
+                                            })}
+                                        </select>
+                                    </div>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
+        </>
+    )
+}

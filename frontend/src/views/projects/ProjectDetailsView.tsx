@@ -2,9 +2,12 @@ import { useQuery } from "@tanstack/react-query"
 import { useNavigate, useParams } from "react-router-dom"
 import { GetProjectById } from "../../api/ProjectApi"
 import AddTaskModal from "../../components/task/AddTaskModal"
+import { TaskList } from "../../components/task/TaskList"
+import { EditTaskData } from "../../components/task/EditTaskData"
+import TaskModalDetails from "../../components/task/TaskModalDetails"
 
 export const ProjectDetailsView = () => {
-    const navigate=useNavigate()
+    const navigate = useNavigate()
 
     const params = useParams()
     const projectId = params.projectId!
@@ -13,6 +16,7 @@ export const ProjectDetailsView = () => {
         queryFn: () => GetProjectById(projectId),
         retry: false
     })
+    console.log(data)
     if (isLoading) return 'Cargando'
     if (data) {
         return (<>
@@ -22,11 +26,14 @@ export const ProjectDetailsView = () => {
                 <button
                     type="button"
                     className="bg-purple-400 hover:bg-purple-500 px-10 py-3 text-white text-xl font-bold cursor-pointer transition-colors"
-                    onClick={()=>navigate(`?newTask=true`)}>
-                        Agregar Tarea
+                    onClick={() => navigate(`?newTask=true`)}>
+                    Agregar Tarea
                 </button>
             </nav>
-            <AddTaskModal/>
+            <TaskList tasks={data.tasks} />
+            <AddTaskModal />
+            <EditTaskData />
+            <TaskModalDetails />
         </>)
     }
 }
