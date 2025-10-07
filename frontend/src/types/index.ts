@@ -1,6 +1,17 @@
 import { z } from 'zod'
 
+/* auth users */
 
+const AuthSchema=z.object({
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+    password_confirmation: z.string()
+})
+
+export type Auth = z.infer<typeof AuthSchema>
+export type UserLoginForm=Pick<Auth,'email' | 'password'>
+export type UserRegistrationForm=Pick<Auth,'email' | 'password'|'password_confirmation'|'name'>
 
 /* Task */
 

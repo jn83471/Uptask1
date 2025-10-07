@@ -19,4 +19,17 @@ router.post('/createAuth',
     ,handleInputErrors
     ,AuthController.createAccount)
 
+router.post('/confirm-account'
+    ,body('token').notEmpty().withMessage("El token no puede ir vacio")
+    ,handleInputErrors
+    ,AuthController.ConfirmAccount
+)
+
+router.post('/login'
+    ,body('email').isEmail().withMessage('E-mail no valido')
+    ,body('password').isLength({min:8}).withMessage('El password es muy corto, minimo necesita tener 8 caracteres')
+    ,handleInputErrors
+    ,AuthController.Login
+)
+
 export default router
