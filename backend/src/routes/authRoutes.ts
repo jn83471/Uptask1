@@ -31,5 +31,15 @@ router.post('/login'
     ,handleInputErrors
     ,AuthController.Login
 )
+router.post('/request-code'
+    ,body('email').isEmail().withMessage('E-mail no valido')
+    ,handleInputErrors
+    ,AuthController.requestConfirmationCode
+)
+router.post('/forgot-password'
+    ,body('email').isEmail().withMessage('E-mail no valido')
+    ,handleInputErrors
+    ,AuthController.forgetPassword
+)
 
 export default router

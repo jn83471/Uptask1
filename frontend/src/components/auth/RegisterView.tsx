@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 
 export default function RegisterView() {
-  
+
   const initialValues: UserRegistrationForm = {
     name: '',
     email: '',
@@ -18,12 +18,12 @@ export default function RegisterView() {
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<UserRegistrationForm>({ defaultValues: initialValues });
 
-  const {mutate}=useMutation({
-    mutationFn:createAccount,
-    onError:(error) =>{
+  const { mutate } = useMutation({
+    mutationFn: createAccount,
+    onError: (error) => {
       toast.error(error.message)
     },
-    onSuccess:(data)=> {
+    onSuccess: (data) => {
       toast.success(data)
       reset()
     }
@@ -31,7 +31,7 @@ export default function RegisterView() {
 
   const password = watch('password');
 
-  const handleRegister = (formData: UserRegistrationForm) =>mutate(formData)
+  const handleRegister = (formData: UserRegistrationForm) => mutate(formData)
 
   return (
     <>
@@ -136,8 +136,10 @@ export default function RegisterView() {
         />
       </form>
       <nav className="mt-10 flex flex-col space-y-4">
-          <Link to={'/auth/login'}
-                className="text-center text-gray-300 font-normal">Ya tengo una cuenta</Link>
+        <Link to={'/auth/login'}
+          className="text-center text-gray-300 font-normal">Ya tengo una cuenta</Link>
+        <Link to={'/auth/forgot-password'}
+          className="text-center text-gray-300 font-normal">Olvidaste tu contraseña</Link>
       </nav>
     </>
   )

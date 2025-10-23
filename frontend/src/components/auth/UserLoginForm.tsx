@@ -2,6 +2,9 @@ import { useForm } from "react-hook-form";
 import type { UserLoginForm } from "../../types";
 import ErrorMessage from "../ErrorMessage";
 import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { Login } from "../../api/AuthApi";
+import { toast } from "react-toastify";
 
 
 export default function LoginView() {
@@ -10,9 +13,20 @@ export default function LoginView() {
     email: '',
     password: '',
   }
+
+  const { mutate} = useMutation({
+    mutationFn: Login,
+    onError: (error) => {
+      toast.error(error.message)
+    },
+    onSuccess: (data) => {
+      toast.success(data)
+    }
+  })
+
   const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: initialValues })
 
-  const handleLogin = (formData: UserLoginForm) => { }
+  const handleLogin = (formData: UserLoginForm) => { mutate(formData) }
   return (
     <>
       <form
@@ -68,8 +82,10 @@ export default function LoginView() {
         />
       </form>
       <nav className="mt-10 flex flex-col space-y-4">
-          <Link to={'/auth/register'}
-                className="text-center text-gray-300 font-normal">No tienes cuenta crear una</Link>
+        <Link to={'/auth/register'}
+          className="text-center text-gray-300 font-normal">No tienes cuenta crear una</Link>
+          <Link to={'/auth/forgot-password'}
+          className="text-center text-gray-300 font-normal">Olvidaste tu contraseña</Link>
       </nav>
     </>
   )

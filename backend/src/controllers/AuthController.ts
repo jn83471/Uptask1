@@ -88,4 +88,64 @@ export class AuthController {
             return res.status(500).send("El proyecto no se ha generdo debido a algun error")
         }
     }
+
+    static requestConfirmationCode: any = async (req: Request, res: Response) => {
+        try {
+            const user = await User.findOne({ email: req.body.email })
+            if (!user) {
+                const error = new Error('El usuario no esta registrado')
+                return res.status(409).send({ error: error.message })
+            }
+
+            if(user.confirmed){
+                const error = new Error('El usuario ya esta confirmado')
+                return res.status(403).send({ error: error.message })
+            }
+
+            const token = new Token()
+            token.token = generateToken()
+            token.user = user.id;
+
+            AuthEmail.sendConfirmationEmail({
+                email: user.email,
+                name: user.name,
+                token: token.token
+            })
+
+            Promise.allSettled([user.save(), token.save()])
+            return res.send('Se envio un nuevo token')
+        } catch (error) {
+            return res.status(500).send("El proyecto no se ha generdo debido a algun error")
+        }
+    }
+    static forgetPassword: any = async (req: Request, res: Response) => {
+        try {
+            const user = await User.findOne({ email: req.body.email })
+            if (!user) {
+                const error = new Error('El usuario no esta registrado')
+                return res.status(409).send({ error: error.message })
+            }
+
+            /*if(user.confirmed){
+                const error = new Error('El usuario ya esta confirmado')
+                return res.status(403).send({ error: error.message })
+            }*/
+
+            const token = new Token()
+            token.token = generateToken()
+            token.user = user.id;
+
+            await token.save();
+
+            AuthEmail.sendPasswordReset({
+                email: user.email,
+                name: user.name,
+                token: token.token
+            })
+
+            return res.send('reviza tu email para seguir instrucciones')
+        } catch (error) {
+            return res.status(500).send("El proyecto no se ha generdo debido a algun error")
+        }
+    }
 }
