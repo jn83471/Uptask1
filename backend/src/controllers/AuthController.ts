@@ -148,4 +148,42 @@ export class AuthController {
             return res.status(500).send("El proyecto no se ha generdo debido a algun error")
         }
     }
+     static ValidateToken: any = async (req: Request, res: Response) => {
+        try {
+            const { token } = req.body
+
+            const tokenExists = await Token.findOne({ token })
+            if (!tokenExists) {
+                const error = new Error('token no valido')
+                return res.status(404).json({ error: error.message })
+            }
+            
+
+            res.send("Token valido define tu password")
+
+        } catch (error) {
+            return res.status(500).send("El proyecto no se ha generdo debido a algun error")
+        }
+    }
+    static updatePassword: any = async (req: Request, res: Response) => {
+        try {
+            const { token } = req.body
+
+            const tokenExists = await Token.findOne({ token })
+            if (!tokenExists) {
+                const error = new Error('token no valido')
+                return res.status(404).json({ error: error.message })
+            }
+            
+            const user=await User.findById(tokenExists.user)
+            user.password=await hashPassword(req.body.password)
+
+            await Promise.allSettled([user.save(),token.deleteOne()])
+
+            res.send("Cambio de password realizado correctamente")
+
+        } catch (error) {
+            return res.status(500).send("El proyecto no se ha generdo debido a algun error")
+        }
+    }
 }
