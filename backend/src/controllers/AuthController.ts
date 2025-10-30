@@ -167,18 +167,21 @@ export class AuthController {
     }
     static updatePassword: any = async (req: Request, res: Response) => {
         try {
-            const { token } = req.body
+            const tokens = req.params.token
 
-            const tokenExists = await Token.findOne({ token })
+            console.log(tokens)
+
+            const tokenExists = await Token.findOne({ token:tokens })
+            console.log(tokenExists)
             if (!tokenExists) {
-                const error = new Error('token no valido')
+                const error = new Error('token no validos')
                 return res.status(404).json({ error: error.message })
             }
             
             const user=await User.findById(tokenExists.user)
             user.password=await hashPassword(req.body.password)
 
-            await Promise.allSettled([user.save(),token.deleteOne()])
+            await Promise.allSettled([user.save(),tokenExists.deleteOne()])
 
             res.send("Cambio de password realizado correctamente")
 
