@@ -4,6 +4,7 @@ import { checkPassword, hashPassword } from "../utils/auth";
 import { generateToken } from "../utils/token";
 import Token from "../models/Token";
 import { AuthEmail } from "../emails/AuthEmail";
+import { generateJWT } from "../utils/jwt";
 
 export class AuthController {
     static createAccount: any = async (req: Request, res: Response) => {
@@ -82,7 +83,8 @@ export class AuthController {
                 const error = new Error('Password incorrecto')
                 return res.status(404).json({ error: error.message })
             }
-            res.send("autenticado")
+            const tk=generateJWT({id: user.id})
+            res.send(tk)
 
         } catch (error) {
             return res.status(500).send("El proyecto no se ha generdo debido a algun error")
